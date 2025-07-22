@@ -274,11 +274,13 @@ perf_set_elapsed(perf_counter_t handle, int64_t elapsed)
 
 				// Atomically update min time
 				uint32_t prev_least = pce->time_least.load();
+
 				while (((uint32_t)elapsed < prev_least || prev_least == 0) &&
 				       !pce->time_least.compare_exchange(&prev_least, (uint32_t)elapsed));
 
 				// Atomically update max time
 				uint32_t prev_most = pce->time_most.load();
+
 				while ((uint32_t)elapsed > prev_most &&
 				       !pce->time_most.compare_exchange(&prev_most, (uint32_t)elapsed));
 
@@ -290,6 +292,7 @@ perf_set_elapsed(perf_counter_t handle, int64_t elapsed)
 				uint32_t old_mean_bits;
 				uint32_t new_mean_bits;
 				float old_mean;
+
 				do {
 					old_mean_bits = pce->mean_bits.load();
 					memcpy(&old_mean, &old_mean_bits, sizeof(old_mean));
@@ -302,6 +305,7 @@ perf_set_elapsed(perf_counter_t handle, int64_t elapsed)
 				uint32_t old_M2_bits;
 				uint32_t new_M2_bits;
 				float old_M2;
+
 				do {
 					old_M2_bits = pce->M2_bits.load();
 					memcpy(&old_M2, &old_M2_bits, sizeof(old_M2));
@@ -360,16 +364,19 @@ perf_count_interval(perf_counter_t handle, hrt_abstime now)
 
 			} else {
 				uint32_t prev_least = pci->time_least.load();
+
 				while ((uint32_t)interval < prev_least &&
 				       !pci->time_least.compare_exchange(&prev_least, (uint32_t)interval));
 
 				uint32_t prev_most = pci->time_most.load();
+
 				while ((uint32_t)interval > prev_most &&
 				       !pci->time_most.compare_exchange(&prev_most, (uint32_t)interval));
 
 				float dt = (float)interval / 1e6f;
 				uint32_t old_mean_bits;
 				float old_mean;
+
 				do {
 					old_mean_bits = pci->mean_bits.load();
 					memcpy(&old_mean, &old_mean_bits, sizeof(old_mean));
@@ -381,6 +388,7 @@ perf_count_interval(perf_counter_t handle, hrt_abstime now)
 				uint32_t old_M2_bits;
 				uint32_t new_M2_bits;
 				float old_M2;
+
 				do {
 					old_M2_bits = pci->M2_bits.load();
 					memcpy(&old_M2, &old_M2_bits, sizeof(old_M2));
@@ -389,6 +397,7 @@ perf_count_interval(perf_counter_t handle, hrt_abstime now)
 					memcpy(&new_M2_bits, &new_M2, sizeof(new_M2_bits));
 				} while (!pci->M2_bits.compare_exchange(&old_M2_bits, new_M2_bits));
 			}
+
 			break;
 		}
 
