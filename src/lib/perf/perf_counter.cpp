@@ -375,15 +375,16 @@ perf_count_interval(perf_counter_t handle, hrt_abstime now)
 
 				float dt = (float)interval / 1e6f;
 				uint32_t old_mean_bits;
+				uint32_t new_mean_bits;
 				float old_mean;
 
 				do {
 					old_mean_bits = pci->mean_bits.load();
 					memcpy(&old_mean, &old_mean_bits, sizeof(old_mean));
 					const float new_mean = old_mean + (dt - old_mean) / n;
-					uint32_t new_mean_bits;
+
 					memcpy(&new_mean_bits, &new_mean, sizeof(new_mean_bits));
-				} while (!pci->mean_bits.compare_exchange(&old_mean_bits, old_mean_bits));
+				} while (!pci->mean_bits.compare_exchange(&old_mean_bits, new_mean_bits));
 
 				uint32_t old_M2_bits;
 				uint32_t new_M2_bits;
